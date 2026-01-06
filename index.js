@@ -81,6 +81,42 @@ async function run() {
         })
     }
 
+    // verify Admin Middleware
+    const verifyAdmin = async (req, res, next) => {
+      const email = req.user.email;
+      const query = { email: email };
+      const user = await usersCollection.findOne(query);
+      const isAdmin = user?.role === 'admin';
+      if (!isAdmin) {
+        return res.status(403).send({ message: 'forbidden access' });
+      }
+      next();
+    }
+
+    // verify Buyer Middleware
+    const verifyBuyer = async (req, res, next) => {
+        const email = req.user?.email;
+        const query = { email: email };
+        const user = await usersCollection.findOne(query);
+        const isBuyer = user?.role === 'buyer';
+        if (!isBuyer) {
+            return res.status(403).send({ message: 'forbidden access' });
+        }
+        next();
+    }
+
+    // verify Worker Middleware
+    const verifyWorker = async (req, res, next) => {
+        const email = req.user?.email;
+        const query = { email: email };
+        const user = await usersCollection.findOne(query);
+        const isWorker = user?.role === 'worker';
+        if (!isWorker) {
+            return res.status(403).send({ message: 'forbidden access' });
+        }
+        next();
+    }
+
     // --- USERS API ---
     app.get('/users/:email', verifyToken, async (req, res) => {
         const email = req.params.email;
@@ -105,6 +141,14 @@ async function run() {
 
         const result = await usersCollection.insertOne(user);
         res.send(result);
+    });
+
+    app.get('/users/role/:email', verifyToken, async (req, res) => {
+        const email = req.params.email;
+        if (req.user.email !== email) return res.status(403).send({ message: 'forbidden access' });
+        const query = { email: email };
+        const user = await usersCollection.findOne(query);
+        res.send({ role: user?.role });
     });
 
 
