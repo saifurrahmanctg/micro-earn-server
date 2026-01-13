@@ -1,3 +1,5 @@
 node_modules
 .env
 .DS_Store
+# Ignore firebase service account key
+micro-task-firebase-adminsdk.json
